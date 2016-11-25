@@ -52,20 +52,39 @@ public class BoardController {
         BoardDto view = boardDao.findOne(Integer.parseInt(idx));
         model.addAttribute("view", view);
 
-        model.addAttribute("title", "Modify");
+        model.addAttribute("title", "modify");
         return "view";
     }
 
-    @RequestMapping(value = "/updateView.do", method= RequestMethod.POST)
-    public String updateView(@ModelAttribute BoardDto dto, Model model){
-        boardDao.delete(dto.getIdx());
-        boardDao.save(dto);
-        model.addAttribute("title", "BordList");
-        return "redirect:/list.do";
+
+    @RequestMapping(value = "/modify.do", method= RequestMethod.GET)
+    public String modify(HttpServletRequest request, Model model){
+        String idx = request.getParameter("idx");
+
+        BoardDto view = boardDao.findOne(Integer.parseInt(idx));
+        model.addAttribute("view", view);
+
+        model.addAttribute("title", "modify");
+        return "modify";
     }
 
-    @RequestMapping(value = "/delete.do", method= RequestMethod.GET)
-    public String delete(HttpServletRequest request, Model model){
+    @RequestMapping(value = "/doModify.do", method= RequestMethod.POST)
+    public String doModify(@ModelAttribute BoardDto dto, Model model){
+        String url = "redirect:/list.do";
+        BoardDto oldData = boardDao.getOne(dto.getIdx());
+        if(oldData.getPasswd().equals(dto.getPasswd())){
+            boardDao.save(dto);
+        }else{
+            model.addAttribute("title", "패스워드가 틀렸습니다.");
+            model.addAttribute("view", dto);
+            url = "modify";
+        }
+
+        return url;
+    }
+
+    @RequestMapping(value = "/doDelete.do", method= RequestMethod.GET)
+    public String doDelete(HttpServletRequest request, Model model){
         int idx = Integer.parseInt(request.getParameter("idx"));
         boardDao.delete(idx);
         model.addAttribute("title", "BordList");
