@@ -38,10 +38,6 @@ public class BoardController {
 
         boardDao.save(dto);
 
-        List<BoardDto> list = boardDao.findAll();
-        model.addAttribute("list", list);
-
-        model.addAttribute("title", "BordList");
         return "redirect:/list.do";
     }
 
@@ -87,6 +83,7 @@ public class BoardController {
     public String doDelete(HttpServletRequest request, Model model){
         int idx = Integer.parseInt(request.getParameter("idx"));
         boardDao.delete(idx);
+
         model.addAttribute("title", "BordList");
         return "redirect:/list.do";
     }
