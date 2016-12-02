@@ -23,11 +23,18 @@ public class BoardController {
 
     @GetMapping("/")
     public String rootPage(Model model){
+        for(int i=0 ; i < 100 ;i++){
+            BoardDto dto = new BoardDto();
+            dto.testData("subject"+i, "content"+i, "writer"+i, i+"", "tag"+i);
+            boardService.doWrite(dto);
+        }
+
+
         return "redirect:/list.do";
     }
 
     @GetMapping("/list.do")
-    public String list(Model model, @PageableDefault(sort = { "idx" }, direction = Sort.Direction.DESC, size = 2) Pageable pageable){
+    public String list(Model model, @PageableDefault(sort = { "idx" }, direction = Sort.Direction.DESC, size = 15) Pageable pageable){
         model.addAttribute("title", "BordList");
         model.addAttribute("list", boardService.getBoardList(pageable));
         return "list";

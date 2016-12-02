@@ -29,4 +29,14 @@ public class BoardDto {
     *
     * http://jdm.kr/blog/141 - > 코멘트 관련jpa조인
     * */
+
+    public void testData(String subject, String content, String writer, String  passwd, String tag){
+        this.subject = subject;
+        this.content = content;
+        this.writer = writer;
+        this.passwd = passwd;
+        this.tag = tag;
+
+    }
+
 }
