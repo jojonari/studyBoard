@@ -3,6 +3,7 @@
     <title>${title}</title>
 </head>
 <body>
+${result.resultMsg}
     <table border="1">
         <tbody>
             <tr>
@@ -23,11 +24,20 @@
             <tr>
                 <td colspan="2"><textarea rows="5" cols="35" name="content" readonly>${view.content}</textarea></td>
             </tr>
+            <tr>
+                <td colspan="2">태그</td>
+            </tr>
+            <tr>
+                <td>${view.tag}</td>
+            </tr>
 
         </tbody>
     </table>
 
     <a href="modify.do?idx=${view.idx}"><button>수정</button></a>
     <a href="list.do"><button>리스트</button></a>
+
+
+
 </body>
 </html>

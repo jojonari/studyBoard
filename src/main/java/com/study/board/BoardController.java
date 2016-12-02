@@ -1,89 +1,88 @@
 package com.study.board;
 
-import com.study.board.dao.BoardDao;
 import com.study.board.dto.BoardDto;
+import com.study.board.dto.ResultDto;
+import com.study.board.service.BoardService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 @Controller
 public class BoardController {
 
     @Autowired
-    BoardDao boardDao;
+    BoardService boardService;
 
-    @RequestMapping("/list.do")
-    public String list(Model model){
-        List<BoardDto> list = boardDao.findAll();
-        model.addAttribute("list", list);
+    @GetMapping("/")
+    public String rootPage(Model model){
+        return "redirect:/list.do";
+    }
 
+    @GetMapping("/list.do")
+    public String list(Model model, @PageableDefault(sort = { "idx" }, direction = Sort.Direction.DESC, size = 2) Pageable pageable){
         model.addAttribute("title", "BordList");
+        model.addAttribute("list", boardService.getBoardList(pageable));
         return "list";
     }
 
-    @RequestMapping("/writeInit.do")
+    @GetMapping("/writeInit.do")
     public String writeInit(Model model){
         model.addAttribute("title", "WriteBoard");
         return "write";
     }
 
-    @RequestMapping(value = "/doWrite.do", method= RequestMethod.POST)
-    public String doWrite(@ModelAttribute BoardDto dto, Model model){
-
-        boardDao.save(dto);
-
+    @PostMapping(value = "/doWrite.do")
+    public String doWrite(@ModelAttribute BoardDto dto){
+        boardService.doWrite(dto);
         return "redirect:/list.do";
     }
 
-    @RequestMapping(value = "/view.do", method= RequestMethod.GET)
+    @GetMapping(value = "/view.do")
     public String view(HttpServletRequest request, Model model){
-        String idx = request.getParameter("idx");
-
-        BoardDto view = boardDao.findOne(Integer.parseInt(idx));
-        model.addAttribute("view", view);
-
         model.addAttribute("title", "modify");
+        int idx = Integer.parseInt(request.getParameter("idx"));
+        BoardDto view = boardService.getView(idx);
+        model.addAttribute("view", view);
+        model.addAttribute("result", new ResultDto());
+
         return "view";
     }
 
 
-    @RequestMapping(value = "/modify.do", method= RequestMethod.GET)
+    @GetMapping(value = "/modify.do")
     public String modify(HttpServletRequest request, Model model){
-        String idx = request.getParameter("idx");
-
-        BoardDto view = boardDao.findOne(Integer.parseInt(idx));
-        model.addAttribute("view", view);
-
         model.addAttribute("title", "modify");
+        int idx = Integer.parseInt(request.getParameter("idx"));
+        BoardDto view =  boardService.getView(idx);
+        model.addAttribute("view", view);
+        model.addAttribute("result", new ResultDto());
         return "modify";
     }
 
-    @RequestMapping(value = "/doModify.do", method= RequestMethod.POST)
+    @PostMapping(value = "/doModify.do")
     public String doModify(@ModelAttribute BoardDto dto, Model model){
-        String url = "redirect:/list.do";
-        BoardDto oldData = boardDao.getOne(dto.getIdx());
-        if(oldData.getPasswd().equals(dto.getPasswd())){
-            boardDao.save(dto);
-        }else{
-            model.addAttribute("title", "패스워드가 틀렸습니다.");
-            model.addAttribute("view", dto);
-            url = "modify";
-        }
-
-        return url;
+        model.addAttribute("title", "modify");
+        ResultDto result = boardService.modifyView(dto);
+        model.addAttribute("view", dto);
+        model.addAttribute("result", result);
+        return result.getTargetUrl();
     }
 
-    @RequestMapping(value = "/doDelete.do", method= RequestMethod.GET)
-    public String doDelete(HttpServletRequest request, Model model){
-        int idx = Integer.parseInt(request.getParameter("idx"));
-        boardDao.delete(idx);
+    @PostMapping(value = "/doDelete.do")
+    public String doDelete(@ModelAttribute BoardDto dto, Model model){
+        ResultDto result = boardService.deleteView(dto);
 
+        if(result.getResultCode() == 0){
+            model.addAttribute("view", dto);
+        }
         model.addAttribute("title", "BordList");
         return "redirect:/list.do";
     }

@@ -1,8 +1,19 @@
 <html>
 <head>
     <title>${title}</title>
+    <script>
+
+        function doDelete() {
+            var frm = document.writeFrom;
+            frm.action = "/doDelete.do";
+            frm.submit();
+
+        }
+    </script>
 </head>
 <body>
+${result.resultMsg}
+
     <form name="writeFrom" action="/doModify.do" method="post">
         <table border="1">
             <tbody>
@@ -25,6 +36,12 @@
                     <td colspan="2"><textarea rows="5" cols="35" name="content">${view.content}</textarea></td>
                 </tr>
                 <tr>
+                    <td colspan="2">태그</td>
+                </tr>
+                <tr>
+                    <td><input type="text" name="tag"></td>
+                </tr>
+                <tr>
                     <td>패스워드 확인(등록시 입력한 패스워드를 입력하세요!)</td>
                     <td><input type="password" name="passwd"></td>
                 </tr>
@@ -32,7 +49,8 @@
         </table>
         <input type="submit" value="수정">
     </form>
-    <a href="doDelete.do?idx=${view.idx}"><button>삭제</button></a>
+    <button onclick="doDelete();">삭제</button>
     <a href="list.do"><button>리스트</button></a>
+
 </body>
 </html>

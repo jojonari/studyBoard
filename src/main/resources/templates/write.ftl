@@ -24,6 +24,12 @@
                 <tr>
                     <td colspan="2"><textarea rows="5" cols="35" name="content"></textarea></td>
                 </tr>
+                <tr>
+                    <td colspan="2">태그</td>
+                </tr>
+                <tr>
+                    <td><input type="text" name="tag"></td>
+                </tr>
             </tbody>
         </table>
         <input type="submit" value="저장">
