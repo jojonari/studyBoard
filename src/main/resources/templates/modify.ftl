@@ -12,7 +12,6 @@
     </script>
 </head>
 <body>
-${result.resultMsg}
 
     <form name="writeFrom" action="/doModify.do" method="post">
         <table border="1">

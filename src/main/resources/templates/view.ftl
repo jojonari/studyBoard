@@ -3,7 +3,6 @@
     <title>${title}</title>
 </head>
 <body>
-${result.resultMsg}
     <table border="1">
         <tbody>
             <tr>

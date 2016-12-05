@@ -1,7 +1,6 @@
 package com.study.board;
 
 import com.study.board.dto.BoardDto;
-import com.study.board.dto.ResultDto;
 import com.study.board.service.BoardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
@@ -21,15 +21,17 @@ public class BoardController {
     @Autowired
     BoardService boardService;
 
-    @GetMapping("/")
-    public String rootPage(Model model){
+    @PostConstruct
+    public void testInit(){
         for(int i=0 ; i < 100 ;i++){
             BoardDto dto = new BoardDto();
             dto.testData("subject"+i, "content"+i, "writer"+i, i+"", "tag"+i);
             boardService.doWrite(dto);
         }
+    }
 
-
+    @GetMapping("/")
+    public String rootPage(){
         return "redirect:/list.do";
     }
 
@@ -58,11 +60,9 @@ public class BoardController {
         int idx = Integer.parseInt(request.getParameter("idx"));
         BoardDto view = boardService.getView(idx);
         model.addAttribute("view", view);
-        model.addAttribute("result", new ResultDto());
 
         return "view";
     }
-
 
     @GetMapping(value = "/modify.do")
     public String modify(HttpServletRequest request, Model model){
@@ -70,28 +70,33 @@ public class BoardController {
         int idx = Integer.parseInt(request.getParameter("idx"));
         BoardDto view =  boardService.getView(idx);
         model.addAttribute("view", view);
-        model.addAttribute("result", new ResultDto());
         return "modify";
     }
 
     @PostMapping(value = "/doModify.do")
     public String doModify(@ModelAttribute BoardDto dto, Model model){
-        model.addAttribute("title", "modify");
-        ResultDto result = boardService.modifyView(dto);
         model.addAttribute("view", dto);
-        model.addAttribute("result", result);
-        return result.getTargetUrl();
+        boolean result = boardService.modifyView(dto);
+        if(result){
+            model.addAttribute("title", "view");
+            return "view";
+        }else{
+            model.addAttribute("title", "modify");
+            return "modify";
+        }
     }
 
     @PostMapping(value = "/doDelete.do")
     public String doDelete(@ModelAttribute BoardDto dto, Model model){
-        ResultDto result = boardService.deleteView(dto);
+        boolean result = boardService.deleteView(dto);
 
-        if(result.getResultCode() == 0){
+        if(result){
+            return "redirect:/list.do";
+        }else{
+            model.addAttribute("title", "modify");
             model.addAttribute("view", dto);
+            return "modify";
         }
-        model.addAttribute("title", "BordList");
-        return "redirect:/list.do";
     }
 
 }

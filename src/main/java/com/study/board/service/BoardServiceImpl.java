@@ -2,7 +2,6 @@ package com.study.board.service;
 
 import com.study.board.dao.BoardDao;
 import com.study.board.dto.BoardDto;
-import com.study.board.dto.ResultDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,31 +31,42 @@ public class BoardServiceImpl  implements BoardService{
     }
 
     @Override
-    public ResultDto deleteView(BoardDto dto) {
-        ResultDto resultDto;
-        BoardDto oldData = boardDao.getOne(dto.getIdx());
-
-        if(oldData.getPasswd().equals(dto.getPasswd())){
+    public boolean deleteView(BoardDto dto) {
+        boolean result;
+        if(passwdCheck(dto)) {
             boardDao.delete(dto.getIdx());
-            resultDto = new ResultDto(1,"삭제성공","redirect:/list.do");
+            result =true;
         }else{
-            resultDto = new ResultDto(0,"삭제실패-PW를 확인해라!!","modify");
+            result = false;
         }
-        return resultDto;
+        System.out.println("deleteView : " + result);
+
+        return result;
+    }
+//todo : 타켓유알엘 컨트롤러에서 분기처리
+    //삭제실패 이셉션에서 처리
+    @Override
+    public boolean modifyView(BoardDto dto) {
+        boolean result;
+        if(passwdCheck(dto)) {
+            boardDao.save(dto);
+            result =true;
+        }else{
+            result = false;
+        }
+        System.out.println("modifyView : " + result);
+        return result;
     }
 
-    @Override
-    public ResultDto modifyView(BoardDto dto) {
-        ResultDto resultDto;
+    private boolean passwdCheck(BoardDto dto){
         BoardDto oldData = boardDao.getOne(dto.getIdx());
+        boolean result;
 
         if(oldData.getPasswd().equals(dto.getPasswd())){
-            boardDao.save(dto);
-            resultDto = new ResultDto(1,"수정성공","view");
+            result = true;
         }else{
-            resultDto = new ResultDto(0,"수정실패-PW를 확인해라!!","modify");
+            result = false;
         }
-        return resultDto;
-
+        return result;
     }
 }
